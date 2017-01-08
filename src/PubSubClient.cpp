@@ -7,6 +7,7 @@
 #include "PubSubClient.h"
 #include "Arduino.h"
 
+
 PubSubClient::PubSubClient() {
     this->_state = MQTT_DISCONNECTED;
     this->_client = NULL;
@@ -20,108 +21,40 @@ PubSubClient::PubSubClient(Client& client) {
     this->stream = NULL;
 }
 
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client) {
+PubSubClient::PubSubClient(Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
-    setServer(addr, port);
-    setClient(client);
-    this->stream = NULL;
-}
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client, Stream& stream) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(addr,port);
     setClient(client);
     setStream(stream);
 }
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
+PubSubClient::PubSubClient(MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
-    setServer(addr, port);
     setCallback(callback);
     setClient(client);
     this->stream = NULL;
 }
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
+PubSubClient::PubSubClient(MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
-    setServer(addr,port);
     setCallback(callback);
     setClient(client);
     setStream(stream);
 }
 
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(ip, port);
-    setClient(client);
-    this->stream = NULL;
-}
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client, Stream& stream) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(ip,port);
-    setClient(client);
-    setStream(stream);
-}
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(ip, port);
-    setCallback(callback);
-    setClient(client);
-    this->stream = NULL;
-}
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(ip,port);
-    setCallback(callback);
-    setClient(client);
-    setStream(stream);
+boolean PubSubClient::connect(const char* domain, uint16_t port, const char *id) {
+    return connect(domain, port, id,NULL,NULL,0,0,0,0);
 }
 
-PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(domain,port);
-    setClient(client);
-    this->stream = NULL;
-}
-PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client, Stream& stream) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(domain,port);
-    setClient(client);
-    setStream(stream);
-}
-PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(domain,port);
-    setCallback(callback);
-    setClient(client);
-    this->stream = NULL;
-}
-PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
-    this->_state = MQTT_DISCONNECTED;
-    setServer(domain,port);
-    setCallback(callback);
-    setClient(client);
-    setStream(stream);
+boolean PubSubClient::connect(const char* domain, uint16_t port, const char *id, const char *user, const char *pass) {
+    return connect(domain, port, id,user,pass,0,0,0,0);
 }
 
-boolean PubSubClient::connect(const char *id) {
-    return connect(id,NULL,NULL,0,0,0,0);
+boolean PubSubClient::connect(const char* domain, uint16_t port, const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
+    return connect(domain, port, id,NULL,NULL,willTopic,willQos,willRetain,willMessage);
 }
 
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass) {
-    return connect(id,user,pass,0,0,0,0);
-}
-
-boolean PubSubClient::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
-    return connect(id,NULL,NULL,willTopic,willQos,willRetain,willMessage);
-}
-
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
+boolean PubSubClient::connect(const char* domain, uint16_t port, const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
     if (!connected()) {
-        int result = 0;
+        int result = _client->connect(domain, port);
 
-        if (domain != NULL) {
-            result = _client->connect(this->domain, this->port);
-        } else {
-            result = _client->connect(this->ip, this->port);
-        }
         if (result == 1) {
             nextMsgId = 1;
             // Leave room in the buffer for header and variable length field
@@ -548,24 +481,6 @@ boolean PubSubClient::connected() {
         }
     }
     return rc;
-}
-
-PubSubClient& PubSubClient::setServer(uint8_t * ip, uint16_t port) {
-    IPAddress addr(ip[0],ip[1],ip[2],ip[3]);
-    return setServer(addr,port);
-}
-
-PubSubClient& PubSubClient::setServer(IPAddress ip, uint16_t port) {
-    this->ip = ip;
-    this->port = port;
-    this->domain = NULL;
-    return *this;
-}
-
-PubSubClient& PubSubClient::setServer(const char * domain, uint16_t port) {
-    this->domain = domain;
-    this->port = port;
-    return *this;
 }
 
 PubSubClient& PubSubClient::setCallback(MQTT_CALLBACK_SIGNATURE) {

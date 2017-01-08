@@ -94,38 +94,23 @@ private:
    boolean readByte(uint8_t * result, uint16_t * index);
    boolean write(uint8_t header, uint8_t* buf, uint16_t length);
    uint16_t writeString(const char* string, uint8_t* buf, uint16_t pos);
-   IPAddress ip;
-   const char* domain;
-   uint16_t port;
    Stream* stream;
    int _state;
 public:
    PubSubClient();
    PubSubClient(Client& client);
-   PubSubClient(IPAddress, uint16_t, Client& client);
-   PubSubClient(IPAddress, uint16_t, Client& client, Stream&);
-   PubSubClient(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   PubSubClient(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
-   PubSubClient(uint8_t *, uint16_t, Client& client);
-   PubSubClient(uint8_t *, uint16_t, Client& client, Stream&);
-   PubSubClient(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   PubSubClient(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
-   PubSubClient(const char*, uint16_t, Client& client);
-   PubSubClient(const char*, uint16_t, Client& client, Stream&);
-   PubSubClient(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   PubSubClient(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+   PubSubClient(Client& client, Stream&);
+   PubSubClient(MQTT_CALLBACK_SIGNATURE,Client& client);
+   PubSubClient(MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
 
-   PubSubClient& setServer(IPAddress ip, uint16_t port);
-   PubSubClient& setServer(uint8_t * ip, uint16_t port);
-   PubSubClient& setServer(const char * domain, uint16_t port);
    PubSubClient& setCallback(MQTT_CALLBACK_SIGNATURE);
    PubSubClient& setClient(Client& client);
    PubSubClient& setStream(Stream& stream);
 
-   boolean connect(const char* id);
-   boolean connect(const char* id, const char* user, const char* pass);
-   boolean connect(const char* id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
-   boolean connect(const char* id, const char* user, const char* pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
+   boolean connect(const char* domain, uint16_t port, const char* id);
+   boolean connect(const char* domain, uint16_t port, const char* id, const char* user, const char* pass);
+   boolean connect(const char* domain, uint16_t port, const char* id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
+   boolean connect(const char* domain, uint16_t port, const char* id, const char* user, const char* pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
    void disconnect();
    boolean publish(const char* topic, const char* payload);
    boolean publish(const char* topic, const char* payload, boolean retained);
